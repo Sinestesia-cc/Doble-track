@@ -1,4 +1,5 @@
 com.jd.guidresolver@1.1.0
+com.nobi.roundedcorners@3.5.0
 com.unity.ai.navigation@2.0.5
 com.unity.cloud.gltfast@6.10.3
 com.unity.connect.share@4.2.3
