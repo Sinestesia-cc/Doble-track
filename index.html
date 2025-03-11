@@ -299,5 +299,64 @@
             }
             
     </script>
+    
+    <!-- Device Orientation API para estabilización de modelos 3D -->
+    <script>
+        // Variables para orientación del dispositivo
+        window.deviceOrientationEnabled = false;
+        window.deviceAlpha = 0;  // Z-axis
+        window.deviceBeta = 0;   // X-axis
+        window.deviceGamma = 0;  // Y-axis
+
+        // Intenta inicializar la orientación del dispositivo
+        function TryInitializeDeviceOrientation() {
+          if (window.DeviceOrientationEvent) {
+            // En iOS 13+ se requiere permiso explícito
+            if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+              // Mostrar botón para solicitar permiso en iOS
+              var permissionButton = document.createElement('button');
+              permissionButton.style.position = 'fixed';
+              permissionButton.style.bottom = '10px';
+              permissionButton.style.right = '10px';
+              permissionButton.style.zIndex = '999';
+              permissionButton.innerHTML = 'Activar Giroscopio';
+              permissionButton.onclick = function() {
+                DeviceOrientationEvent.requestPermission()
+                  .then(function(response) {
+                    if (response === 'granted') {
+                      window.addEventListener('deviceorientation', handleDeviceOrientation, true);
+                      permissionButton.style.display = 'none';
+                    }
+                  })
+                  .catch(console.error);
+              };
+              document.body.appendChild(permissionButton);
+            } else {
+              // Android y otros dispositivos no requieren permiso explícito
+              window.addEventListener('deviceorientation', handleDeviceOrientation, true);
+            }
+            return true;
+          }
+          return false;
+        }
+
+        function handleDeviceOrientation(event) {
+          window.deviceAlpha = event.alpha || 0;  // Z-axis rotation [0,360)
+          window.deviceBeta = event.beta || 0;    // X-axis rotation [-180,180)
+          window.deviceGamma = event.gamma || 0;  // Y-axis rotation [-90,90)
+          window.deviceOrientationEnabled = true;
+        }
+
+        // Exponer las funciones al ámbito global para que WebGL pueda acceder a ellas
+        window.TryInitializeDeviceOrientation = TryInitializeDeviceOrientation;
+        window.GetDeviceOrientationAlpha = function() { return window.deviceAlpha; };
+        window.GetDeviceOrientationBeta = function() { return window.deviceBeta; };
+        window.GetDeviceOrientationGamma = function() { return window.deviceGamma; };
+
+        // Inicializar el giroscopio automáticamente cuando la página cargue
+        document.addEventListener('DOMContentLoaded', function() {
+          TryInitializeDeviceOrientation();
+        });
+    </script>
 </body>
 </html>
