@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content='width=device-width, height=device-height, initial-scale=1.0, minimum-scale=1.0, user-scalable=no, shrink-to-fit=yes'>
-    <title>Unity WebGL Player | Cintac AR</title>
+    <title>Unity WebGL Player | WebLoadingTest</title>
     <link rel="stylesheet" href="TemplateData/style.css">
     <style>
         html{
@@ -34,12 +34,8 @@
 </head>
 <body>
     <!--IMAGETARGETS-->
-		<imagetarget id='ARtracking P1_0703_01' src='targets/ARtracking P1_0703_01.jpg'></imagetarget>
-		<imagetarget id='ARtracking P2_0703_02' src='targets/ARtracking P2_0703_02.jpg'></imagetarget>
-		<imagetarget id='1AISLAWALL-CROWN-1' src='targets/1AISLAWALL-CROWN-1.jpg'></imagetarget>
-		<imagetarget id='1AISLAWALL-CROWN_M' src='targets/1AISLAWALL-CROWN_M.jpg'></imagetarget>
-		<imagetarget id='Asset 2' src='targets/Asset 2.jpg'></imagetarget>
-		<imagetarget id='Asset 9' src='targets/Asset 9.jpg'></imagetarget>
+		<imagetarget id='AISLAWALL CROWN (qr)' src='targets/AISLAWALL CROWN (qr).png'></imagetarget>
+		<imagetarget id='AISLAWALL YC (qr)' src='targets/AISLAWALL YC (qr).png'></imagetarget>
 
     <video id="webcam-video" muted autoplay playsinline style="width:1px;position:absolute"></video>
     <canvas id="video-canvas" style="width:100%; height:100%; object-fit:cover; position:absolute"></canvas>
@@ -78,7 +74,7 @@
     </div>
     <script src="arcamera.js" type="text/javascript"></script>
     <script src="itracker.js" type="text/javascript"></script>
-    <script src="Build/Buildmix.loader.js"></script>
+    <script src="Build/Buildclaude.loader.js"></script>
     <script>
             var initialize = async() =>{
                 var unityCanvas = document.querySelector("#unity-canvas");
@@ -110,13 +106,13 @@
                 
                 document.getElementById("startARDiv").style.display = "none";
                 createUnityInstance(document.querySelector("#unity-canvas"), {
-                    dataUrl: "Build/Buildmix.data",
-                    frameworkUrl: "Build/Buildmix.framework.js",
-                    codeUrl: "Build/Buildmix.wasm",
+                    dataUrl: "Build/Buildclaude.data",
+                    frameworkUrl: "Build/Buildclaude.framework.js",
+                    codeUrl: "Build/Buildclaude.wasm",
                     streamingAssetsUrl: "StreamingAssets",
-                    companyName: "Sinestesia",
-                    productName: "Cintac AR",
-                    productVersion: "0.3",
+                    companyName: "JohannesDeml",
+                    productName: "WebLoadingTest",
+                    productVersion: "1.4.0",
                     //webglContextAttributes: { "preserveDrawingBuffer": true },
                     // matchWebGLToCanvasSize: false, // Uncomment this to separately control WebGL canvas render size and DOM element size.
                     // devicePixelRatio: 1, // Uncomment this to override low DPI rendering on high DPI displays.
@@ -298,65 +294,6 @@
                 INTERNAL_SMOOTHFACTOR_POS: .075,
             }
             
-    </script>
-    
-    <!-- Device Orientation API para estabilización de modelos 3D -->
-    <script>
-        // Variables para orientación del dispositivo
-        window.deviceOrientationEnabled = false;
-        window.deviceAlpha = 0;  // Z-axis
-        window.deviceBeta = 0;   // X-axis
-        window.deviceGamma = 0;  // Y-axis
-
-        // Intenta inicializar la orientación del dispositivo
-        function TryInitializeDeviceOrientation() {
-          if (window.DeviceOrientationEvent) {
-            // En iOS 13+ se requiere permiso explícito
-            if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-              // Mostrar botón para solicitar permiso en iOS
-              var permissionButton = document.createElement('button');
-              permissionButton.style.position = 'fixed';
-              permissionButton.style.bottom = '10px';
-              permissionButton.style.right = '10px';
-              permissionButton.style.zIndex = '999';
-              permissionButton.innerHTML = 'Activar Giroscopio';
-              permissionButton.onclick = function() {
-                DeviceOrientationEvent.requestPermission()
-                  .then(function(response) {
-                    if (response === 'granted') {
-                      window.addEventListener('deviceorientation', handleDeviceOrientation, true);
-                      permissionButton.style.display = 'none';
-                    }
-                  })
-                  .catch(console.error);
-              };
-              document.body.appendChild(permissionButton);
-            } else {
-              // Android y otros dispositivos no requieren permiso explícito
-              window.addEventListener('deviceorientation', handleDeviceOrientation, true);
-            }
-            return true;
-          }
-          return false;
-        }
-
-        function handleDeviceOrientation(event) {
-          window.deviceAlpha = event.alpha || 0;  // Z-axis rotation [0,360)
-          window.deviceBeta = event.beta || 0;    // X-axis rotation [-180,180)
-          window.deviceGamma = event.gamma || 0;  // Y-axis rotation [-90,90)
-          window.deviceOrientationEnabled = true;
-        }
-
-        // Exponer las funciones al ámbito global para que WebGL pueda acceder a ellas
-        window.TryInitializeDeviceOrientation = TryInitializeDeviceOrientation;
-        window.GetDeviceOrientationAlpha = function() { return window.deviceAlpha; };
-        window.GetDeviceOrientationBeta = function() { return window.deviceBeta; };
-        window.GetDeviceOrientationGamma = function() { return window.deviceGamma; };
-
-        // Inicializar el giroscopio automáticamente cuando la página cargue
-        document.addEventListener('DOMContentLoaded', function() {
-          TryInitializeDeviceOrientation();
-        });
     </script>
 </body>
 </html>
