@@ -1,9 +1,9 @@
 const cacheName = "JohannesDeml-WebLoadingTest-1.4.0";
 const contentToCache = [
-    "Build/BuildClaude2.loader.js",
-    "Build/BuildClaude2.framework.js",
-    "Build/BuildClaude2.data",
-    "Build/BuildClaude2.wasm",
+    "Build/Build.loader.js",
+    "Build/Build.framework.js",
+    "Build/Build.data",
+    "Build/Build.wasm",
     "TemplateData/style.css"
 
 ];
