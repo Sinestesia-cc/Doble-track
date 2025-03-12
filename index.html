@@ -36,20 +36,23 @@
             background-color: #4CAF50;
             border: none;
             color: white;
-            padding: 15px 32px;
+            padding: 18px 36px;
             text-align: center;
             text-decoration: none;
             display: inline-block;
-            font-size: 16px;
+            font-size: 18px;
             margin: 4px 2px;
             cursor: pointer;
             border-radius: 8px;
             box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
             transition: 0.3s;
+            font-weight: bold;
+            min-width: 200px;
         }
         #startARButton:hover {
             background-color: #45a049;
             box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+            transform: scale(1.05);
         }
         .logo {
             max-width: 80%;
@@ -84,6 +87,26 @@
             width: 200px;
             height: auto;
             margin-bottom: 30px;
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+        }
+        #sinestesia-error-logo {
+            width: 150px;
+            height: auto;
+            margin-bottom: 20px;
+            background: white;
+            padding: 8px;
+            border-radius: 8px;
+        }
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 30px;
         }
     </style>
 </head>
@@ -97,11 +120,14 @@
     <video id="webcam-video" muted autoplay playsinline style="width:1px;position:absolute"></video>
     <canvas id="video-canvas" style="width:100%; height:100%; object-fit:cover; position:absolute"></canvas>
     <div id="startARDiv" class="ctaDiv">
-        <img id="sinestesia-logo" src="TemplateData/sinestesia-logo.png" alt="Sinestesia" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22100%22><text x=%2250%%22 y=%2250%%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22sans-serif%22 font-size=%2224%22 fill=%22white%22>SINESTESIA</text></svg>';">
+        <div class="logo-container">
+            <img id="sinestesia-logo" src="TemplateData/sinestesia-logo.png" alt="Sinestesia" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22100%22><text x=%2250%%22 y=%2250%%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22sans-serif%22 font-size=%2224%22 fill=%22black%22>SINESTESIA</text></svg>';">
+        </div>
         <h2>Experiencia de Realidad Aumentada</h2>
         <select id="chooseCamSel" style="display: none; margin-bottom: 20px; padding: 8px; border-radius: 4px;" onchange="SelectCam()"></select>
         <p style="text-align: center; width:80vw; max-width: 500px;">Esta experiencia de realidad aumentada necesita acceso a la cámara de tu dispositivo.</p>
-        <button id="startARButton" onclick="StartAR()" style="display:none">PERMITIR ACCESO</button>
+        <!-- Mostramos el botón siempre para evitar problemas -->
+        <button id="startARButton" onclick="StartAR()">PERMITIR ACCESO</button>
     </div>
     <div id="screenshotDiv" style="display: none;" class="ctaDiv">
         <div style="position:relative; background-color:white; padding:10px; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.25); color: black;">
@@ -119,9 +145,11 @@
         </div>
     </div>
     <div id="errorDiv" class="ctaDiv" style="display: none; background: rgba(0, 0, 0, 0.9)">
-        <img id="sinestesia-error-logo" src="TemplateData/sinestesia-logo.png" alt="Sinestesia" style="width: 150px; margin-bottom: 20px;" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22100%22><text x=%2250%%22 y=%2250%%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22sans-serif%22 font-size=%2224%22 fill=%22white%22>SINESTESIA</text></svg>';">
+        <div class="logo-container" style="margin-bottom: 20px;">
+            <img id="sinestesia-error-logo" src="TemplateData/sinestesia-logo.png" alt="Sinestesia" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22100%22><text x=%2250%%22 y=%2250%%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22sans-serif%22 font-size=%2224%22 fill=%22black%22>SINESTESIA</text></svg>';">
+        </div>
         <p id="errorText" style="text-align: center; width:80vw; max-width: 500px; color:white"></p>
-        <button onclick="location.reload()" style="background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin-top: 20px;">REINTENTAR</button>
+        <button onclick="location.reload()" style="background-color: #4CAF50; color: white; padding: 15px 30px; border: none; border-radius: 4px; cursor: pointer; margin-top: 20px; font-size: 16px;">REINTENTAR</button>
     </div>
     <div id="unity-container" class="unity-mobile">
         <canvas id="unity-canvas" style="width: 100%; height: 100%; background: #0000; z-index: -99"></canvas>
@@ -137,35 +165,82 @@
     <script src="itracker.js" type="text/javascript"></script>
     <script src="Build/ultima.si que si.loader.js"></script>
     <script>
+            // Variable para rastrear si ya se solicitaron permisos
+            var permissionsRequested = false;
+            
             var initialize = async() => {
                 var unityCanvas = document.querySelector("#unity-canvas");
                 var videoCanvas = document.querySelector("#video-canvas");
-                window.arCamera = new ARCamera(unityCanvas, videoCanvas);
-                window.iTracker = new ImageTracker(arCamera);
-                try {
-                    await window.iTracker.initialize("./opencv.js");
-                    console.log("ImageTracker inicializado!");
-                }
-                catch (error) {
-                    console.error("No se pudo inicializar ImageTracker. ¿Falta opencv.js? " + error);
-                    ShowError("No se pudo inicializar la experiencia.");
-                    return;
-                }
                 
-                await LoadWebcams();
-                document.getElementById("startARButton").style.display = "block";
-                window.permissionsGranted = IsCameraPermissionGranted();
+                try {
+                    window.arCamera = new ARCamera(unityCanvas, videoCanvas);
+                    window.iTracker = new ImageTracker(arCamera);
+                    
+                    // Intentar inicializar el ImageTracker
+                    try {
+                        await window.iTracker.initialize("./opencv.js");
+                        console.log("ImageTracker inicializado!");
+                    }
+                    catch (error) {
+                        console.error("No se pudo inicializar ImageTracker: " + error);
+                        ShowError("No se pudo inicializar la experiencia. Error en carga de componentes.");
+                        return;
+                    }
+                    
+                    // Cargar las webcams disponibles
+                    try {
+                        await LoadWebcams();
+                        console.log("Webcams cargadas correctamente");
+                    } catch (error) {
+                        console.warn("Error al cargar webcams: " + error);
+                        // Continuamos aunque haya error en cargar webcams
+                    }
+                    
+                    // Comprobar si ya tenemos permisos
+                    window.permissionsGranted = await IsCameraPermissionGranted();
+                    console.log("Permisos de cámara concedidos: " + window.permissionsGranted);
+                    
+                } catch (error) {
+                    console.error("Error durante la inicialización: " + error);
+                    ShowError("Hubo un problema al inicializar la aplicación.");
+                }
             }
-            initialize();
+            
+            // Llamar a initialize al cargar la página
+            window.addEventListener('DOMContentLoaded', (event) => {
+                initialize();
+            });
+            
             var container = document.querySelector("#unity-container");
             var canvas = document.querySelector("#unity-canvas");
             var loadingBar = document.querySelector("#unity-loading-bar");
             var progressBarFull = document.querySelector("#unity-progress-bar-full");
+            
             function StartAR() {
+                if (permissionsRequested) {
+                    return; // Evitar múltiples solicitudes
+                }
+                
+                permissionsRequested = true;
+                console.log("Iniciando experiencia AR");
+                
                 canvas.style.width = window.innerWidth + "px";
                 canvas.style.height = window.innerHeight + "px";
                 
-                document.getElementById("startARDiv").style.display = "none";
+                // Solicitar permisos primero
+                RequestWebcam().then(() => {
+                    document.getElementById("startARDiv").style.display = "none";
+                    
+                    // Luego cargar Unity
+                    loadUnity();
+                }).catch(error => {
+                    permissionsRequested = false;
+                    console.error("Error al solicitar permisos de cámara: " + error);
+                    ShowError("No se pudo obtener acceso a la cámara. La experiencia AR requiere permisos de cámara.");
+                });
+            }
+            
+            function loadUnity() {
                 createUnityInstance(document.querySelector("#unity-canvas"), {
                     dataUrl: "Build/ultima.si que si.data",
                     frameworkUrl: "Build/ultima.si que si.framework.js",
@@ -174,25 +249,23 @@
                     companyName: "Sinestesia",
                     productName: "WebAR Experience",
                     productVersion: "1.0.0",
-                    //webglContextAttributes: { "preserveDrawingBuffer": true },
-                    // matchWebGLToCanvasSize: false, // Uncomment this to separately control WebGL canvas render size and DOM element size.
-                    // devicePixelRatio: 1, // Uncomment this to override low DPI rendering on high DPI displays.
                     },
                     (progress) => {
                         progressBarFull.style.width = 100 * progress + "%";
                     }
                 ).then((unityInstance) => {
                     window.unityInstance = unityInstance;
-                    if(window.permissionsGranted)
-                        RequestWebcam();
                     loadingBar.style.display = "none";
+                    StartWebcam(); // Iniciar la cámara después de cargar Unity
                 }).catch((error) => {
-                    console.error("Error al cargar la experiencia: ", error);
+                    console.error("Error al cargar Unity: ", error);
                     ShowError("Error al cargar la experiencia. Por favor, intenta recargar la página.");
                 });
+                
                 loadingBar.style.display = "block";
             }
-            //Set Facing Mode here ('environment', 'user', '')
+            
+            // Set Facing Mode here ('environment', 'user', '')
             window.unityFacingMode = "environment"
             window.WEBCAM_SETTINGS = {
                 video: {
@@ -200,130 +273,184 @@
                 },
                 audio: false
             };
+            
             window.requestingForPermissions = false;
+            
+            // Función mejorada para solicitar permisos de cámara
             async function RequestWebcam(){
                 window.requestingForPermissions = true;
-                try{
-                    window.webcamStream = await navigator.mediaDevices.getUserMedia(window.WEBCAM_SETTINGS);
+                
+                try {
+                    console.log("Solicitando permisos de cámara...");
+                    window.webcamStream = await navigator.mediaDevices.getUserMedia({
+                        video: true,
+                        audio: false
+                    });
+                    
                     console.log("Acceso a cámara concedido");
-                    requestingForPermissions = false;
-                    // Immediately stop the stream to release the camera
+                    window.requestingForPermissions = false;
+                    window.permissionsGranted = true;
+                    
+                    // Detener inmediatamente la transmisión para liberar la cámara
                     StopWebcam();
+                    return true;
                 }
                 catch (err) {
-                    //user denied camera permission - show error panel
-                    console.error("Error en getUserMedia - " , err);
-                    ShowError("No se pudo iniciar la experiencia. Se denegó el permiso de la cámara.");
+                    console.error("Error al obtener permisos de cámara: ", err);
                     window.requestingForPermissions = false;
-                }           
+                    ShowError("No se pudo iniciar la experiencia. Se denegó el permiso de la cámara.");
+                    throw err;
+                }
             }
+            
             function StopWebcam(){
-                console.log("Deteniendo cámara");
-                window.webcamStream.getTracks().forEach(track => track.stop());    
+                if (window.webcamStream) {
+                    console.log("Deteniendo cámara");
+                    window.webcamStream.getTracks().forEach(track => track.stop());
+                }
             }
+            
             async function StartWebcam(){
-                console.log("Iniciando cámara")
-                window.webcamStream = await navigator.mediaDevices.getUserMedia(window.WEBCAM_SETTINGS);
-                while (window.requestingForPermissions) {
-                    // Wait until requestingForPermissions becomes true.
-                    console.log("Esperando permisos...");
-                    await new Promise(resolve => setTimeout(resolve, 100)); // Adjust the delay time as needed.
-                }
-                console.log("Permisos obtenidos");
-                if(window.webcamStream)
-                {
-                    const video = document.querySelector("#webcam-video");
-                    video.srcObject = webcamStream;
-                    try {
-                        await arCamera.startWebcam(video);
-                        console.log("Cámara iniciada con éxito");
-                        window.unityInstance.SendMessage('ARCamera', 'OnStartWebcamSuccess');
+                console.log("Iniciando cámara");
+                
+                try {
+                    window.webcamStream = await navigator.mediaDevices.getUserMedia(window.WEBCAM_SETTINGS);
+                    
+                    while (window.requestingForPermissions) {
+                        console.log("Esperando permisos...");
+                        await new Promise(resolve => setTimeout(resolve, 100));
                     }
-                    catch(err){
-                        console.error("No se pudo iniciar la cámara - ", err);
-                        window.unityInstance.SendMessage('ARCamera', 'OnStartWebcamFail');
-                    }   
-                }
-                else{
-                    console.error("No se pudo iniciar la cámara - permiso aún no concedido");
-                    window.unityInstance.SendMessage('ARCamera', 'OnStartWebcamFail');
-                }  
-            }
-            async function LoadWebcams(){
-                let camDevices = [];
-                let devices = await navigator.mediaDevices.enumerateDevices();
-                var ctr = 0;
-                devices.forEach(mediaDevice => {
-                    if (mediaDevice.kind === 'videoinput') {
-                        if(window.unityFacingMode == 'environment' && !mediaDevice.label.includes('facing front')){
-                            //back cam only
-                            camDevices.push(mediaDevice);
-                        }
-                        else if(window.unityFacingMode == 'user' && mediaDevice.label.includes('facing front')){
-                            //front cam only
-                            camDevices.push(mediaDevice);
-                        }
-                        else{
-                            //back and front
-                            camDevices.push(mediaDevice);
-                        }   
+                    
+                    console.log("Permisos obtenidos");
+                    
+                    if (window.webcamStream) {
+                        const video = document.querySelector("#webcam-video");
+                        video.srcObject = webcamStream;
                         
-                        ctr++;
-                    }
-                });
-                var select = document.getElementById("chooseCamSel");
-                // Solo mostrar selector si hay múltiples cámaras
-                if (camDevices.length > 1) {
-                    select.style.display = "block";
-                    var count = 0;
-                    // Invertir el array porque en algunos teléfonos Android no se puede distinguir 
-                    // entre cámaras frontal y trasera al principio
-                    camDevices = camDevices.reverse();
-                    camDevices.forEach(mediaDevice => {
-                        const option = document.createElement('option');
-                        option.value = mediaDevice.deviceId;
-                        let label = `Cámara ${count}`;
-                        if (mediaDevice.label) {
-                            label = mediaDevice.label
+                        try {
+                            await arCamera.startWebcam(video);
+                            console.log("Cámara iniciada con éxito");
+                            
+                            if (window.unityInstance) {
+                                window.unityInstance.SendMessage('ARCamera', 'OnStartWebcamSuccess');
+                            }
                         }
-                        const textNode = document.createTextNode(label);
-                        option.appendChild(textNode);
-                        select.appendChild(option);
-                        count++;
-                    });
+                        catch(err) {
+                            console.error("No se pudo iniciar la cámara: ", err);
+                            
+                            if (window.unityInstance) {
+                                window.unityInstance.SendMessage('ARCamera', 'OnStartWebcamFail');
+                            }
+                            
+                            ShowError("Error al iniciar la cámara. Por favor, recarga la página e intenta nuevamente.");
+                        }
+                    }
+                } catch (error) {
+                    console.error("Error al iniciar webcam: ", error);
+                    ShowError("No se pudo iniciar la cámara. Asegúrate de haber concedido los permisos necesarios.");
                 }
-                iTracker.WEBCAM_NAME = select.options ? select.options[select.selectedIndex].innerHTML : "Cámara principal";
             }
+            
+            async function LoadWebcams(){
+                try {
+                    let camDevices = [];
+                    let devices = await navigator.mediaDevices.enumerateDevices();
+                    
+                    devices.forEach(mediaDevice => {
+                        if (mediaDevice.kind === 'videoinput') {
+                            if (window.unityFacingMode == 'environment' && !mediaDevice.label.includes('facing front')) {
+                                camDevices.push(mediaDevice);
+                            }
+                            else if (window.unityFacingMode == 'user' && mediaDevice.label.includes('facing front')) {
+                                camDevices.push(mediaDevice);
+                            }
+                            else {
+                                camDevices.push(mediaDevice);
+                            }
+                        }
+                    });
+                    
+                    var select = document.getElementById("chooseCamSel");
+                    
+                    // Solo mostrar selector si hay múltiples cámaras
+                    if (camDevices.length > 1) {
+                        select.style.display = "block";
+                        
+                        // Invertir el array para priorizar cámara trasera en Android
+                        camDevices = camDevices.reverse();
+                        
+                        camDevices.forEach((mediaDevice, index) => {
+                            const option = document.createElement('option');
+                            option.value = mediaDevice.deviceId;
+                            
+                            let label = `Cámara ${index}`;
+                            if (mediaDevice.label) {
+                                label = mediaDevice.label;
+                            }
+                            
+                            const textNode = document.createTextNode(label);
+                            option.appendChild(textNode);
+                            select.appendChild(option);
+                        });
+                    }
+                    
+                    if (window.iTracker) {
+                        window.iTracker.WEBCAM_NAME = select.options && select.options.length > 0 ? 
+                            select.options[select.selectedIndex].innerHTML : "Cámara principal";
+                    }
+                } catch (error) {
+                    console.warn("Error al cargar las cámaras: " + error);
+                    // Continuamos aunque haya error
+                }
+            }
+            
             function SelectCam(){
                 var select = document.getElementById("chooseCamSel");
-                window.deviceId = select.value;
-                window.WEBCAM_SETTINGS.video['deviceId'] = deviceId;
-                iTracker.WEBCAM_NAME = select.options[select.selectedIndex].innerHTML;
+                if (select && select.value) {
+                    window.deviceId = select.value;
+                    window.WEBCAM_SETTINGS.video['deviceId'] = deviceId;
+                    
+                    if (window.iTracker) {
+                        window.iTracker.WEBCAM_NAME = select.options[select.selectedIndex].innerHTML;
+                    }
+                }
             }
+            
             async function FlipCam(){
+                if (!window.arCamera) return;
+                
                 arCamera.stopWebcam();
                 window.WEBCAM_SETTINGS.video.deviceId = '';
-                if(window.WEBCAM_SETTINGS.video.facingMode == 'user'){
+                
+                if (window.WEBCAM_SETTINGS.video.facingMode == 'user') {
                     window.WEBCAM_SETTINGS.video.facingMode = 'environment';
                     arCamera.setFlipped(false);
                 }
-                else{
+                else {
                     window.WEBCAM_SETTINGS.video.facingMode = 'user';
                     arCamera.setFlipped(true);
                 }
-                window.webcamStream = await navigator.mediaDevices.getUserMedia(window.WEBCAM_SETTINGS);
-                const video = document.querySelector("#webcam-video");
-                video.srcObject = webcamStream;
-                await arCamera.startWebcam(video);
+                
+                try {
+                    window.webcamStream = await navigator.mediaDevices.getUserMedia(window.WEBCAM_SETTINGS);
+                    const video = document.querySelector("#webcam-video");
+                    video.srcObject = webcamStream;
+                    await arCamera.startWebcam(video);
+                } catch (error) {
+                    console.error("Error al cambiar la cámara: " + error);
+                    ShowError("No se pudo cambiar la cámara. Intenta recargar la página.");
+                }
             }
+            
             async function IsCameraPermissionGranted() {
                 if (!navigator.permissions || !navigator.mediaDevices) {
                     console.log("API de permisos o mediaDevices no compatible.");
                     return false;
                 }
+                
                 try {
-                    // Query the status of the camera permission
                     const permissionStatus = await navigator.permissions.query({ name: "camera" });
+                    
                     if (permissionStatus.state === "granted") {
                         console.log("El permiso de cámara ya ha sido concedido.");
                         return true;
@@ -339,28 +466,33 @@
                     return false;
                 }
             }
+            
             function ShowError(error){
                 document.getElementById("errorDiv").style.display = "flex";
                 document.getElementById("errorText").innerHTML = error;
             }
+            
             function ShowScreenshot(dataUrl){
                 document.getElementById("screenshotDiv").style.display = "flex";
                 document.getElementById("screenshotImg").src = dataUrl;
                 document.getElementById("screenshotImg").style.width = "80vw";
                 document.getElementById("screenshotImg").style.height = 80 / window.innerWidth * window.innerHeight + "vw";
             }
+            
             function ShowConfirmUrl(url){
                 document.getElementById("confirmUrlDiv").style.display = "flex";
                 window.newUrlString = url;
-                document.getElementById("confirmUrlText").innerText = "¿Estás seguro de que quieres visitar " + url + "?";                
+                document.getElementById("confirmUrlText").innerText = "¿Estás seguro de que quieres visitar " + url + "?";
             }
+            
             window.ITRACKER_GLOBALS = {
-                //place global settings here
                 INTERNAL_SMOOTHFACTOR_POS: .075,
             }
+            
             // Gestión de errores global
             window.addEventListener("error", function(e) {
                 console.error("Error global capturado:", e.message);
+                
                 if (window.unityInstance) {
                     // Solo mostrar errores críticos que puedan afectar la experiencia
                     if (e.message.includes("WebGL") || e.message.includes("camera") || e.message.includes("tracking")) {
