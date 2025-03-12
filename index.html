@@ -17,6 +17,8 @@
             width: 100vw;
             overflow: hidden;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: white;
+            text-align: center;
         }
         .ctaDiv {
             display: flex;
@@ -28,9 +30,10 @@
             right: 0;
             top: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
+            background: white;
             z-index: 99;
-            color: white;
+            color: #333;
+            text-align: center;
         }
         #startARButton {
             background-color: #4CAF50;
@@ -41,7 +44,7 @@
             text-decoration: none;
             display: inline-block;
             font-size: 18px;
-            margin: 4px 2px;
+            margin: 20px auto;
             cursor: pointer;
             border-radius: 8px;
             box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
@@ -68,13 +71,15 @@
             z-index: 100;
             width: 80%;
             max-width: 400px;
+            text-align: center;
         }
         #unity-progress-bar-empty {
             width: 100%;
-            height: 20px;
-            background-color: #333;
+            height: 8px;
+            background-color: #eee;
             border-radius: 10px;
-            margin-top: 10px;
+            margin: 20px auto;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
         }
         #unity-progress-bar-full {
             width: 0%;
@@ -86,27 +91,27 @@
         #sinestesia-logo {
             width: 200px;
             height: auto;
-            margin-bottom: 30px;
-            background: white;
-            padding: 10px;
-            border-radius: 10px;
+            margin: 30px auto;
         }
-        #sinestesia-error-logo {
+        h2, p {
+            text-align: center;
+            margin: 15px auto;
+            max-width: 500px;
+            width: 80vw;
+        }
+        #chooseCamSel {
+            margin: 15px auto;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            text-align: center;
+            display: block;
+        }
+        #unity-logo {
             width: 150px;
             height: auto;
-            margin-bottom: 20px;
-            background: white;
-            padding: 8px;
-            border-radius: 8px;
-        }
-        .logo-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: white;
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 30px;
+            margin: 0 auto 10px auto;
+            display: block;
         }
     </style>
 </head>
@@ -120,23 +125,21 @@
     <video id="webcam-video" muted autoplay playsinline style="width:1px;position:absolute"></video>
     <canvas id="video-canvas" style="width:100%; height:100%; object-fit:cover; position:absolute"></canvas>
     <div id="startARDiv" class="ctaDiv">
-        <div class="logo-container">
-            <img id="sinestesia-logo" src="TemplateData/sinestesia-logo.png" alt="Sinestesia" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22100%22><text x=%2250%%22 y=%2250%%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22sans-serif%22 font-size=%2224%22 fill=%22black%22>SINESTESIA</text></svg>';">
-        </div>
+        <img id="sinestesia-logo" src="TemplateData/sinestesia-logo.png" alt="Sinestesia" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22100%22><text x=%2250%%22 y=%2250%%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22sans-serif%22 font-size=%2224%22 fill=%22black%22>SINESTESIA</text></svg>';">
         <h2>Experiencia de Realidad Aumentada</h2>
-        <select id="chooseCamSel" style="display: none; margin-bottom: 20px; padding: 8px; border-radius: 4px;" onchange="SelectCam()"></select>
-        <p style="text-align: center; width:80vw; max-width: 500px;">Esta experiencia de realidad aumentada necesita acceso a la cámara de tu dispositivo.</p>
+        <select id="chooseCamSel" style="display: none;" onchange="SelectCam()"></select>
+        <p>Esta experiencia de realidad aumentada necesita acceso a la cámara de tu dispositivo.</p>
         <!-- Mostramos el botón siempre para evitar problemas -->
         <button id="startARButton" onclick="StartAR()">PERMITIR ACCESO</button>
     </div>
     <div id="screenshotDiv" style="display: none;" class="ctaDiv">
-        <div style="position:relative; background-color:white; padding:10px; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.25); color: black;">
+        <div style="position:relative; background-color:white; padding:10px; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.25); color: black; text-align: center;">
             <img id="screenshotImg" src="" alt="captura de pantalla" style="width:80vw; height:80vh">
             <button onclick="document.getElementById('screenshotDiv').style.display = 'none';" style="position:absolute; transform:translateY(-100%); right:0; top:0; background-color: #f44336; color: white; padding: 10px; border: none; border-radius: 4px; cursor: pointer;">Cerrar</button>
         </div>
     </div>
     <div id="confirmUrlDiv" style="display: none;" class="ctaDiv">
-        <div style="position:relative; background-color:white; padding:20px; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.25); width: 80vw; max-width: 500px; display:flex; flex-direction: column; align-items: center; color: black; border-radius: 8px;">
+        <div style="position:relative; background-color:white; padding:20px; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.25); width: 80vw; max-width: 500px; display:flex; flex-direction: column; align-items: center; color: black; border-radius: 8px; text-align: center;">
             <p id="confirmUrlText" style="text-align: center; width:90%; overflow: hidden; text-overflow: ellipsis;">¿Estás seguro de que quieres visitar url.com?</p>
             <div style="display: flex; gap: 10px;">
                 <button onclick="window.open(newUrlString, '_blank').focus(); document.getElementById('confirmUrlDiv').style.display = 'none'" style="background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">VISITAR SITIO</button>
@@ -145,16 +148,14 @@
         </div>
     </div>
     <div id="errorDiv" class="ctaDiv" style="display: none; background: rgba(0, 0, 0, 0.9)">
-        <div class="logo-container" style="margin-bottom: 20px;">
-            <img id="sinestesia-error-logo" src="TemplateData/sinestesia-logo.png" alt="Sinestesia" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22100%22><text x=%2250%%22 y=%2250%%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22sans-serif%22 font-size=%2224%22 fill=%22black%22>SINESTESIA</text></svg>';">
-        </div>
+        <img id="sinestesia-error-logo" src="TemplateData/sinestesia-logo.png" alt="Sinestesia" style="width: 150px; margin-bottom: 20px;" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22100%22><text x=%2250%%22 y=%2250%%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22sans-serif%22 font-size=%2224%22 fill=%22white%22>SINESTESIA</text></svg>';">
         <p id="errorText" style="text-align: center; width:80vw; max-width: 500px; color:white"></p>
         <button onclick="location.reload()" style="background-color: #4CAF50; color: white; padding: 15px 30px; border: none; border-radius: 4px; cursor: pointer; margin-top: 20px; font-size: 16px;">REINTENTAR</button>
     </div>
     <div id="unity-container" class="unity-mobile">
         <canvas id="unity-canvas" style="width: 100%; height: 100%; background: #0000; z-index: -99"></canvas>
         <div id="unity-loading-bar">
-            <div id="unity-logo"></div>
+            <img id="unity-logo" src="TemplateData/sinestesia-logo.png" alt="Sinestesia" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22150%22 height=%2275%22><text x=%2250%%22 y=%2250%%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22sans-serif%22 font-size=%2224%22 fill=%22black%22>SINESTESIA</text></svg>';">
             <div id="unity-progress-bar-empty">
                 <div id="unity-progress-bar-full"></div>
             </div>
