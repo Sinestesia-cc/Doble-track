@@ -113,6 +113,33 @@
             margin: 0 auto 10px auto;
             display: block;
         }
+        /* Aseguramos que el video canvas ocupe toda la pantalla */
+        #video-canvas {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+        }
+        /* Aseguramos que el unity canvas ocupe toda la pantalla */
+        #unity-canvas {
+            width: 100% !important;
+            height: 100% !important;
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            z-index: 1 !important;
+        }
+        /* Aseguramos que el contenedor principal ocupe toda la pantalla */
+        #unity-container {
+            width: 100% !important;
+            height: 100% !important;
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            overflow: hidden !important;
+        }
     </style>
 </head>
 <body>
@@ -122,8 +149,18 @@
 		<imagetarget id='TARGET_YC' src='targets/TARGET_YC.jpg'></imagetarget>
 		<imagetarget id='TARGET_CROWN' src='targets/TARGET_CROWN.jpg'></imagetarget>
 
-    <video id="webcam-video" muted autoplay playsinline style="width:1px;position:absolute"></video>
-    <canvas id="video-canvas" style="width:100%; height:100%; object-fit:cover; position:absolute"></canvas>
+    <video id="webcam-video" muted autoplay playsinline style="width:1px;height:1px;position:absolute;opacity:0;"></video>
+    <div id="unity-container">
+        <canvas id="unity-canvas"></canvas>
+        <canvas id="video-canvas"></canvas>
+        <div id="unity-loading-bar">
+            <img id="unity-logo" src="TemplateData/sinestesia-logo.png" alt="Sinestesia" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22150%22 height=%2275%22><text x=%2250%%22 y=%2250%%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22sans-serif%22 font-size=%2224%22 fill=%22black%22>SINESTESIA</text></svg>';">
+            <div id="unity-progress-bar-empty">
+                <div id="unity-progress-bar-full"></div>
+            </div>
+        </div>
+    </div>
+    
     <div id="startARDiv" class="ctaDiv">
         <img id="sinestesia-logo" src="TemplateData/sinestesia-logo.png" alt="Sinestesia" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22100%22><text x=%2250%%22 y=%2250%%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22sans-serif%22 font-size=%2224%22 fill=%22black%22>SINESTESIA</text></svg>';">
         <h2>Experiencia de Realidad Aumentada</h2>
@@ -132,12 +169,14 @@
         <!-- Mostramos el botón siempre para evitar problemas -->
         <button id="startARButton" onclick="StartAR()">PERMITIR ACCESO</button>
     </div>
+    
     <div id="screenshotDiv" style="display: none;" class="ctaDiv">
         <div style="position:relative; background-color:white; padding:10px; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.25); color: black; text-align: center;">
             <img id="screenshotImg" src="" alt="captura de pantalla" style="width:80vw; height:80vh">
             <button onclick="document.getElementById('screenshotDiv').style.display = 'none';" style="position:absolute; transform:translateY(-100%); right:0; top:0; background-color: #f44336; color: white; padding: 10px; border: none; border-radius: 4px; cursor: pointer;">Cerrar</button>
         </div>
     </div>
+    
     <div id="confirmUrlDiv" style="display: none;" class="ctaDiv">
         <div style="position:relative; background-color:white; padding:20px; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.25); width: 80vw; max-width: 500px; display:flex; flex-direction: column; align-items: center; color: black; border-radius: 8px; text-align: center;">
             <p id="confirmUrlText" style="text-align: center; width:90%; overflow: hidden; text-overflow: ellipsis;">¿Estás seguro de que quieres visitar url.com?</p>
@@ -147,21 +186,13 @@
             </div>
         </div>
     </div>
+    
     <div id="errorDiv" class="ctaDiv" style="display: none; background: rgba(0, 0, 0, 0.9)">
         <img id="sinestesia-error-logo" src="TemplateData/sinestesia-logo.png" alt="Sinestesia" style="width: 150px; margin-bottom: 20px;" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22100%22><text x=%2250%%22 y=%2250%%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22sans-serif%22 font-size=%2224%22 fill=%22white%22>SINESTESIA</text></svg>';">
         <p id="errorText" style="text-align: center; width:80vw; max-width: 500px; color:white"></p>
         <button onclick="location.reload()" style="background-color: #4CAF50; color: white; padding: 15px 30px; border: none; border-radius: 4px; cursor: pointer; margin-top: 20px; font-size: 16px;">REINTENTAR</button>
     </div>
-    <div id="unity-container" class="unity-mobile">
-        <canvas id="unity-canvas" style="width: 100%; height: 100%; background: #0000; z-index: -99"></canvas>
-        <div id="unity-loading-bar">
-            <img id="unity-logo" src="TemplateData/sinestesia-logo.png" alt="Sinestesia" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22150%22 height=%2275%22><text x=%2250%%22 y=%2250%%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22sans-serif%22 font-size=%2224%22 fill=%22black%22>SINESTESIA</text></svg>';">
-            <div id="unity-progress-bar-empty">
-                <div id="unity-progress-bar-full"></div>
-            </div>
-        </div>
-        <canvas id="video-canvas"></canvas>
-    </div>
+    
     <script src="arcamera.js" type="text/javascript"></script>
     <script src="itracker.js" type="text/javascript"></script>
     <script src="Build/ultima.si que si.loader.js"></script>
@@ -225,8 +256,14 @@
                 permissionsRequested = true;
                 console.log("Iniciando experiencia AR");
                 
-                canvas.style.width = window.innerWidth + "px";
-                canvas.style.height = window.innerHeight + "px";
+                // Aseguramos que los canvas tengan el tamaño correcto
+                var unityCanvas = document.querySelector("#unity-canvas");
+                var videoCanvas = document.querySelector("#video-canvas");
+                
+                unityCanvas.style.width = "100%";
+                unityCanvas.style.height = "100%";
+                videoCanvas.style.width = "100%";
+                videoCanvas.style.height = "100%";
                 
                 // Solicitar permisos primero
                 RequestWebcam().then(() => {
@@ -499,6 +536,22 @@
                     if (e.message.includes("WebGL") || e.message.includes("camera") || e.message.includes("tracking")) {
                         ShowError("Se ha producido un error. Intenta recargar la página.");
                     }
+                }
+            });
+            
+            // Cuando la ventana cambia de tamaño, asegurar que los canvas se ajusten correctamente
+            window.addEventListener('resize', function() {
+                var unityCanvas = document.querySelector("#unity-canvas");
+                var videoCanvas = document.querySelector("#video-canvas");
+                
+                if (unityCanvas) {
+                    unityCanvas.style.width = "100%";
+                    unityCanvas.style.height = "100%";
+                }
+                
+                if (videoCanvas) {
+                    videoCanvas.style.width = "100%";
+                    videoCanvas.style.height = "100%";
                 }
             });
             
